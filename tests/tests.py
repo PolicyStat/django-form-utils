@@ -197,7 +197,7 @@ class BetterFormTests(TestCase):
                                 'classes': '',
                                 }),
                     (['reference'],
-                    {
+                     {
                                 'name': 'Optional',
                                 'legend': 'Optional',
                                 'description': '',
@@ -214,7 +214,7 @@ class BetterFormTests(TestCase):
                                 'classes': '',
                                 }),
                     (['reference'],
-                    {
+                     {
                                 'name': 'Optional',
                                 'legend': 'Optional',
                                 'description': '',
@@ -231,7 +231,7 @@ class BetterFormTests(TestCase):
                                 'classes': '',
                                 }),
                     (['reference'],
-                    {
+                     {
                                 'name': 'Optional',
                                 'legend': 'Optional',
                                 'description': '',
@@ -258,14 +258,14 @@ class BetterFormTests(TestCase):
                                 'classes': 'main',
                                 }),
                     (['age'],
-                    {
+                     {
                                 'name': 'More',
                                 'legend': 'More',
                                 'description': 'Extra information',
                                 'classes': 'more collapse'
                                 }),
                     (['title'],
-                    {
+                     {
                                 'name': None,
                                 'legend': None,
                                 'description': '',
@@ -282,7 +282,7 @@ class BetterFormTests(TestCase):
                                 'classes': 'main',
                                 }),
                     (['age', 'speed', 'agility'],
-                    {
+                     {
                                 'name': 'Acrobatics',
                                 'legend': 'Acrobatics',
                                 'description': '',
@@ -299,14 +299,14 @@ class BetterFormTests(TestCase):
                                 'classes': 'main',
                                 }),
                     (['age'],
-                    {
+                     {
                                 'name': 'More',
                                 'legend': 'More',
                                 'description': 'Extra information',
                                 'classes': 'more collapse'
                                 }),
                     (['title'],
-                    {
+                     {
                                 'name': None,
                                 'legend': None,
                                 'description': '',
@@ -331,8 +331,7 @@ class BetterFormTests(TestCase):
             for i, fs in enumerate(form.fieldsets):
                 target_data = targets[i]
                 # verify fieldset contains correct fields
-                self.assertEqual([f.name for f in fs],
-                                  target_data[0])
+                self.assertEqual([f.name for f in fs], target_data[0])
                 # verify fieldset has correct attributes
                 for attr, val in target_data[1].items():
                     self.assertEqual(getattr(fs, attr), val)
@@ -345,8 +344,10 @@ class BetterFormTests(TestCase):
         """
         form = ApplicationForm(data={'name': 'John Doe',
                                      'reference': 'Jane Doe'})
-        self.assertEqual([fs.errors for fs in form.fieldsets],
-                          [{'position': [u'This field is required.']}, {}])
+        self.assertEqual(
+            [fs.errors for fs in form.fieldsets],
+            [{'position': [u'This field is required.']}, {}]
+        )
 
     def test_iterate_fields(self):
         """
@@ -356,8 +357,10 @@ class BetterFormTests(TestCase):
 
         """
         form = ApplicationForm()
-        self.assertEqual([field.name for field in form],
-                          ['name', 'position', 'reference'])
+        self.assertEqual(
+            [field.name for field in form],
+            ['name', 'position', 'reference']
+        )
 
     def test_getitem_fields(self):
         """
@@ -388,7 +391,7 @@ class BetterFormTests(TestCase):
 
         """
         form = HoneypotForm()
-        honeypot = [field for field in form if field.name=='honeypot'][0]
+        honeypot = [field for field in form if field.name == 'honeypot'][0]
         attrs = honeypot.row_attrs
         self.assertTrue(u'style="display: none"' in attrs)
         self.assertTrue(u'class="required"' in attrs)
@@ -401,7 +404,7 @@ class BetterFormTests(TestCase):
         """
         form = HoneypotForm()
         fieldset = [fs for fs in form.fieldsets][0]
-        honeypot = [field for field in fieldset if field.name=='honeypot'][0]
+        honeypot = [field for field in fieldset if field.name == 'honeypot'][0]
         attrs = honeypot.row_attrs
         self.assertTrue(u'style="display: none"' in attrs)
         self.assertTrue(u'class="required"' in attrs)
@@ -427,6 +430,7 @@ class BetterFormTests(TestCase):
             class ErrorForm(BetterForm):
                 one = forms.CharField()
                 two = forms.CharField()
+
                 class Meta:
                     fieldsets = ((None, {'fields': ('one', 'two')}))
         # can't test the message here, but it would be TypeError otherwise
@@ -465,6 +469,7 @@ label_suffix = ':' if django.VERSION > (1, 6, 0) else ''
 class BoringForm(forms.Form):
     boredom = forms.IntegerField()
     excitement = forms.IntegerField()
+
 
 class TemplatetagTests(TestCase):
     boring_form_html = (
@@ -534,7 +539,10 @@ class ImageWidgetTests(TestCase):
 
         """
         widget = ImageWidget()
-        html = widget.render('fieldname', ImageFieldFile(None, ImageField(), 'tiny.png'))
+        html = widget.render(
+            'fieldname',
+            ImageFieldFile(None, ImageField(), 'tiny.png')
+        )
         # test only this much of the html, because the remainder will
         # vary depending on whether we have sorl-thumbnail
         self.assertTrue('<img' in html)
@@ -546,7 +554,10 @@ class ImageWidgetTests(TestCase):
 
         """
         widget = ImageWidget()
-        html = widget.render('fieldname', FieldFile(None, FileField(), 'something.txt'))
+        html = widget.render(
+            'fieldname',
+            FieldFile(None, FileField(), 'something.txt')
+        )
         self.assertHTMLEqual(html, '<input type="file" name="fieldname" />')
 
     def test_custom_template(self):
@@ -556,7 +567,10 @@ class ImageWidgetTests(TestCase):
         """
         widget = ImageWidget(template='<div>%(image)s</div>'
                              '<div>%(input)s</div>')
-        html = widget.render('fieldname', ImageFieldFile(None, ImageField(), 'tiny.png'))
+        html = widget.render(
+            'fieldname',
+            ImageFieldFile(None, ImageField(), 'tiny.png')
+        )
         self.assertTrue(html.startswith('<div><img'))
 
 
@@ -582,7 +596,10 @@ class ClearableFileInputTests(TestCase):
 
         """
         widget = ClearableFileInput(file_widget=ImageWidget())
-        html = widget.render('fieldname', ImageFieldFile(None, ImageField(), 'tiny.png'))
+        html = widget.render(
+            'fieldname',
+            ImageFieldFile(None, ImageField(), 'tiny.png')
+        )
         self.assertTrue('<img' in html)
 
     def test_custom_file_widget_via_subclass(self):
@@ -594,7 +611,10 @@ class ClearableFileInputTests(TestCase):
         class ClearableImageWidget(ClearableFileInput):
             default_file_widget_class = ImageWidget
         widget = ClearableImageWidget()
-        html = widget.render('fieldname', ImageFieldFile(None, ImageField(), 'tiny.png'))
+        html = widget.render(
+            'fieldname',
+            ImageFieldFile(None, ImageField(), 'tiny.png')
+        )
         self.assertTrue('<img' in html)
 
     def test_custom_template(self):
@@ -603,7 +623,10 @@ class ClearableFileInputTests(TestCase):
 
         """
         widget = ClearableFileInput(template='Clear: %(checkbox)s %(input)s')
-        html = widget.render('fieldname', ImageFieldFile(None, ImageField(), 'tiny.png'))
+        html = widget.render(
+            'fieldname',
+            ImageFieldFile(None, ImageField(), 'tiny.png')
+        )
         self.assertHTMLEqual(
             html,
             'Clear: '
@@ -739,12 +762,11 @@ class ClearableFileFieldTests(TestCase):
         """
         class ClearableImageWidget(ClearableFileInput):
             default_file_widget_class = ImageWidget
+
         class ClearableImageWidgetField(ClearableFileField):
             widget = ClearableImageWidget
         field = ClearableImageWidgetField()
         self.assertTrue(isinstance(field.widget, ClearableImageWidget))
-
-
 
 
 class FieldFilterTests(TestCase):
@@ -754,7 +776,6 @@ class FieldFilterTests(TestCase):
         """The module under test."""
         from form_utils.templatetags import form_utils
         return form_utils
-
 
     @property
     def form(self):
@@ -774,7 +795,6 @@ class FieldFilterTests(TestCase):
 
         return PersonForm
 
-
     @patch("form_utils.templatetags.form_utils.render_to_string")
     def test_label(self, render_to_string):
         """``label`` filter renders field label from template."""
@@ -793,7 +813,6 @@ class FieldFilterTests(TestCase):
                 }
             )
 
-
     @patch("form_utils.templatetags.form_utils.render_to_string")
     def test_label_override(self, render_to_string):
         """label filter allows overriding the label text."""
@@ -810,24 +829,26 @@ class FieldFilterTests(TestCase):
                 }
             )
 
-
     def test_value_text(self):
         """``value_text`` filter returns value of field."""
         self.assertEqual(
-            self.form_utils.value_text(self.form({"name": "boo"})["name"]), "boo")
-
+            self.form_utils.value_text(self.form({"name": "boo"})["name"]),
+            "boo"
+        )
 
     def test_value_text_unbound(self):
         """``value_text`` filter returns default value of unbound field."""
-        self.assertEqual(self.form_utils.value_text(self.form()["name"]), "none")
-
+        self.assertEqual(
+            self.form_utils.value_text(self.form()["name"]),
+            "none"
+        )
 
     def test_value_text_choices(self):
-        """``value_text`` filter returns human-readable value of choicefield."""
+        """``value_text`` filter returns human-readable value of choicefield."""  # noqa
         self.assertEqual(
-            self.form_utils.value_text(
-                self.form({"level": "a"})["level"]), "Advanced")
-
+            self.form_utils.value_text(self.form({"level": "a"})["level"]),
+            "Advanced"
+        )
 
     def test_selected_values_choices(self):
         """``selected_values`` filter returns values of multiple select."""
@@ -836,18 +857,15 @@ class FieldFilterTests(TestCase):
         self.assertEqual(
             self.form_utils.selected_values(f["level"]),
             ["Advanced", "Beginner"],
-            )
-
+        )
 
     def test_optional_false(self):
         """A required field should not be marked optional."""
         self.assertFalse(self.form_utils.optional(self.form()["name"]))
 
-
     def test_optional_true(self):
         """A non-required field should be marked optional."""
         self.assertTrue(self.form_utils.optional(self.form()["level"]))
-
 
     def test_detect_checkbox(self):
         """``is_checkbox`` detects checkboxes."""
@@ -855,13 +873,11 @@ class FieldFilterTests(TestCase):
 
         self.assertTrue(self.form_utils.is_checkbox(f["awesome"]))
 
-
     def test_detect_non_checkbox(self):
         """``is_checkbox`` detects that select fields are not checkboxes."""
         f = self.form()
 
         self.assertFalse(self.form_utils.is_checkbox(f["level"]))
-
 
     def test_is_multiple(self):
         """`is_multiple` detects a MultipleChoiceField."""
@@ -869,13 +885,11 @@ class FieldFilterTests(TestCase):
 
         self.assertTrue(self.form_utils.is_multiple(f["colors"]))
 
-
     def test_is_not_multiple(self):
         """`is_multiple` detects a non-multiple widget."""
         f = self.form()
 
         self.assertFalse(self.form_utils.is_multiple(f["level"]))
-
 
     def test_is_select(self):
         """`is_select` detects a ChoiceField."""
@@ -883,20 +897,17 @@ class FieldFilterTests(TestCase):
 
         self.assertTrue(self.form_utils.is_select(f["level"]))
 
-
     def test_is_not_select(self):
         """`is_select` detects a non-ChoiceField."""
         f = self.form()
 
         self.assertFalse(self.form_utils.is_select(f["name"]))
 
-
     def test_is_radio(self):
         """`is_radio` detects a radio select widget."""
         f = self.form()
 
         self.assertTrue(self.form_utils.is_radio(f["gender"]))
-
 
     def test_is_not_radio(self):
         """`is_radio` detects a non-radio select."""
