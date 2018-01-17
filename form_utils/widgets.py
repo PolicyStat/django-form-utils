@@ -89,7 +89,9 @@ class ClearableFileInput(forms.MultiWidget):
                                     'checkbox': rendered_widgets[1]}
         return rendered_widgets[0]
 
-root = lambda path: posixpath.join(settings.STATIC_URL, path)
+
+def root(path):
+    return posixpath.join(settings.STATIC_URL, path)
 
 
 class AutoResizeTextarea(forms.Textarea):
