@@ -134,12 +134,20 @@ class ClearableFileInput(forms.MultiWidget):
 
         self.renderer.set_value(value)
 
-        return super(ClearableFileInput, self).render(
-            name,
-            value,
-            attrs,
-            renderer=self.renderer,
-        )
+        try:
+            return super(ClearableFileInput, self).render(
+                name,
+                value,
+                attrs,
+                renderer=self.renderer,
+            )
+        except TypeError:
+            return super(ClearableFileInput, self).render(
+                name,
+                value,
+                attrs,
+                # Django 1.8 doesn't take a renderer
+            )
 
     def decompress(self, value):
         # The clear checkbox is never initially checked
