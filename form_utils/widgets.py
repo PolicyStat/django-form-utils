@@ -12,6 +12,7 @@ import posixpath
 
 from django import forms
 from django.conf import settings
+from django.template.loader import render_to_string
 from django.utils.safestring import mark_safe
 
 from .settings import JQUERY_URL
@@ -59,15 +60,68 @@ class ImageWidget(forms.FileInput):
         return mark_safe(output)
 
 
+class ClearableFileInputRenderer(object):
+    def __init__(self, template_string):
+        self.template_string = template_string
+
+    def set_value(self, value):
+        self.input_value = value
+
+    def render(self, template_name, context, request=None):
+        print('')
+        print('>' * 52)
+
+        print(context)
+
+        input_html = render_to_string(
+            context['widget']['subwidgets'][0]['template_name'],
+            context,
+            request,
+        )
+
+        print(input_html)
+
+        checkbox_html = render_to_string(
+            context['widget']['subwidgets'][1]['template_name'],
+            context,
+            request,
+        )
+
+        print(checkbox_html)
+
+        print('>' * 52)
+        print('')
+
+        return self.get_clearable_file_input(
+            [
+                input_html,
+                checkbox_html,
+            ]
+        )
+
+    def get_clearable_file_input(self, rendered_widgets):
+        # Only show the clear checkbox if the input has a value
+        if self.input_value:
+            return self.template_string % {
+                'input': rendered_widgets[0],
+                'checkbox': rendered_widgets[1]
+            }
+
+        return rendered_widgets[0]
+
+
 class ClearableFileInput(forms.MultiWidget):
     default_file_widget_class = forms.FileInput
     template = '%(input)s Clear: %(checkbox)s'
 
-    def __init__(self, file_widget=None,
-                 attrs=None, template=None):
+    def __init__(self, file_widget=None, attrs=None, template=None):
         if template is not None:
             self.template = template
+
         file_widget = file_widget or self.default_file_widget_class()
+
+        self.renderer = ClearableFileInputRenderer(template)
+
         super(ClearableFileInput, self).__init__(
             widgets=[file_widget, forms.CheckboxInput()],
             attrs=attrs)
@@ -77,13 +131,22 @@ class ClearableFileInput(forms.MultiWidget):
             self.value = value[0]
         else:
             self.value = value
-        return super(ClearableFileInput, self).render(name, value, attrs)
+
+        self.renderer.set_value(value)
+
+        return super(ClearableFileInput, self).render(
+            name,
+            value,
+            attrs,
+            renderer=self.renderer,
+        )
 
     def decompress(self, value):
-        # the clear checkbox is never initially checked
+        # The clear checkbox is never initially checked
         return [value, None]
 
     def format_output(self, rendered_widgets):
+        # Only show the clear checkbox if the input has a value
         if self.value:
             return self.template % {'input': rendered_widgets[0],
                                     'checkbox': rendered_widgets[1]}

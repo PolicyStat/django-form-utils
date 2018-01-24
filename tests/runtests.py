@@ -4,6 +4,7 @@ import os
 import sys
 
 import django
+from django import __path__
 from django.conf import settings
 
 if not settings.configured:
@@ -18,7 +19,16 @@ if not settings.configured:
         MEDIA_URL='/media/',
         STATIC_URL='/static/',
         MIDDLEWARE_CLASSES=[],
-        )
+        TEMPLATES=[
+            {
+                'BACKEND': 'django.template.backends.django.DjangoTemplates',
+                'DIRS': [
+                    '{base}/forms/templates/'.format(base=__path__[0]),
+                ],
+                'APP_DIRS': True,
+            }
+        ],
+    )
 
     settings.configure(**settings_dict)
 
