@@ -472,20 +472,38 @@ class BoringForm(forms.Form):
 
 
 class TemplatetagTests(TestCase):
-    boring_form_html = (
-        u'<fieldset class="fieldset_main">'
-        u'<ul>'
-        u'<li>'
-        u'<label for="id_boredom">Boredom%(suffix)s</label>'
-        u'<input type="%(type)s" name="boredom" id="id_boredom" />'
-        u'</li>'
-        u'<li>'
-        u'<label for="id_excitement">Excitement%(suffix)s</label>'
-        u'<input type="%(type)s" name="excitement" id="id_excitement" />'
-        u'</li>'
-        u'</ul>'
-        u'</fieldset>'
-        ) % {'type': number_field_type, 'suffix': label_suffix}
+    @property
+    def boring_form_html(self):
+        if django.VERSION < (1, 10, 0):
+            return (
+                u'<fieldset class="fieldset_main">'
+                u'<ul>'
+                u'<li>'
+                u'<label for="id_boredom">Boredom%(suffix)s</label>'
+                u'<input type="%(type)s" name="boredom" id="id_boredom" />'
+                u'</li>'
+                u'<li>'
+                u'<label for="id_excitement">Excitement%(suffix)s</label>'
+                u'<input type="%(type)s" name="excitement" id="id_excitement" />'  # noqa
+                u'</li>'
+                u'</ul>'
+                u'</fieldset>'
+                ) % {'type': number_field_type, 'suffix': label_suffix}
+        else:
+            return (
+                u'<fieldset class="fieldset_main">'
+                u'<ul>'
+                u'<li>'
+                u'<label for="id_boredom">Boredom%(suffix)s</label>'
+                u'<input type="%(type)s" name="boredom" id="id_boredom" required />'  # noqa
+                u'</li>'
+                u'<li>'
+                u'<label for="id_excitement">Excitement%(suffix)s</label>'
+                u'<input type="%(type)s" name="excitement" id="id_excitement" required />'  # noqa
+                u'</li>'
+                u'</ul>'
+                u'</fieldset>'
+                ) % {'type': number_field_type, 'suffix': label_suffix}
 
     def test_render_form(self):
         """
@@ -497,29 +515,56 @@ class TemplatetagTests(TestCase):
         html = tpl.render(template.Context({'form': form}))
         self.assertHTMLEqual(html, self.boring_form_html)
 
-    betterform_html = (
-        u'<fieldset class="">'
-        u'<ul>'
-        u'<li class="required">'
-        u'<label for="id_name">Name%(suffix)s</label>'
-        u'<input type="text" name="name" id="id_name" />'
-        u'</li>'
-        u'<li class="required">'
-        u'<label for="id_position">Position%(suffix)s</label>'
-        u'<input type="text" name="position" id="id_position" />'
-        u'</li>'
-        u'</ul>'
-        u'</fieldset>'
-        u'<fieldset class="optional">'
-        u'<legend>Optional</legend>'
-        u'<ul>'
-        u'<li class="optional">'
-        u'<label for="id_reference">Reference%(suffix)s</label>'
-        u'<input type="text" name="reference" id="id_reference" />'
-        u'</li>'
-        u'</ul>'
-        u'</fieldset>'
-        ) % {'suffix': label_suffix}
+    @property
+    def betterform_html(self):
+        if django.VERSION < (1, 10, 0):
+            return (
+                u'<fieldset class="">'
+                u'<ul>'
+                u'<li class="required">'
+                u'<label for="id_name">Name%(suffix)s</label>'
+                u'<input type="text" name="name" id="id_name" />'
+                u'</li>'
+                u'<li class="required">'
+                u'<label for="id_position">Position%(suffix)s</label>'
+                u'<input type="text" name="position" id="id_position" />'
+                u'</li>'
+                u'</ul>'
+                u'</fieldset>'
+                u'<fieldset class="optional">'
+                u'<legend>Optional</legend>'
+                u'<ul>'
+                u'<li class="optional">'
+                u'<label for="id_reference">Reference%(suffix)s</label>'
+                u'<input type="text" name="reference" id="id_reference" />'
+                u'</li>'
+                u'</ul>'
+                u'</fieldset>'
+                ) % {'suffix': label_suffix}
+        else:
+            return (
+                u'<fieldset class="">'
+                u'<ul>'
+                u'<li class="required">'
+                u'<label for="id_name">Name%(suffix)s</label>'
+                u'<input type="text" name="name" id="id_name" required />'
+                u'</li>'
+                u'<li class="required">'
+                u'<label for="id_position">Position%(suffix)s</label>'
+                u'<input type="text" name="position" id="id_position" required />'  # noqa
+                u'</li>'
+                u'</ul>'
+                u'</fieldset>'
+                u'<fieldset class="optional">'
+                u'<legend>Optional</legend>'
+                u'<ul>'
+                u'<li class="optional">'
+                u'<label for="id_reference">Reference%(suffix)s</label>'
+                u'<input type="text" name="reference" id="id_reference" />'
+                u'</li>'
+                u'</ul>'
+                u'</fieldset>'
+                ) % {'suffix': label_suffix}
 
     def test_render_betterform(self):
         """
@@ -658,11 +703,20 @@ class ClearableFileFieldTests(TestCase):
         class TestForm(forms.Form):
             f = ClearableFileField()
         form = TestForm(files={'f_0': self.upload})
+        if django.VERSION < (1, 10, 0):
+            expected = (
+                '<input type="file" name="f_0" id="id_f_0" /> Clear: '
+                '<input type="checkbox" name="f_1" id="id_f_1" />'
+            )
+        else:
+            expected = (
+                '<input type="file" name="f_0" id="id_f_0" required /> Clear: '
+                '<input type="checkbox" name="f_1" id="id_f_1" required />'
+            )
         self.assertHTMLEqual(
             six.text_type(form['f']),
-            u'<input type="file" name="f_0" id="id_f_0" />'
-            u' Clear: <input type="checkbox" name="f_1" id="id_f_1" />'
-            )
+            expected,
+        )
 
     def test_not_cleared(self):
         """
@@ -702,37 +756,6 @@ class ClearableFileFieldTests(TestCase):
         field = ClearableFileField()
         result = field.clean([self.upload, '1'])
         self.assertEqual(result, self.upload)
-
-    def test_custom_file_field(self):
-        """
-        We can pass in our own ``file_field`` rather than using the
-        default ``forms.FileField``.
-
-        """
-        file_field = forms.ImageField()
-        field = ClearableFileField(file_field=file_field)
-        self.assertTrue(field.fields[0] is file_field)
-
-    def test_custom_file_field_required(self):
-        """
-        If we pass in our own ``file_field`` its required value is
-        used for the composite field.
-
-        """
-        file_field = forms.ImageField(required=False)
-        field = ClearableFileField(file_field=file_field)
-        self.assertFalse(field.required)
-
-    def test_custom_file_field_widget_used(self):
-        """
-        If we pass in our own ``file_field`` its widget is used for
-        the internal file field.
-
-        """
-        widget = ImageWidget()
-        file_field = forms.ImageField(widget=widget)
-        field = ClearableFileField(file_field=file_field)
-        self.assertTrue(field.fields[0].widget is widget)
 
     def test_clearable_image_field(self):
         """
