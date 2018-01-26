@@ -41,9 +41,8 @@ class ClearableFileField(forms.MultiValueField):
     default_file_field_class = forms.FileField
     widget = ClearableFileInput
 
-    def __init__(self, file_field=None, template=None, *args, **kwargs):
-        file_field = file_field or self.default_file_field_class(*args,
-                                                                 **kwargs)
+    def __init__(self, template=None, *args, **kwargs):
+        file_field = self.default_file_field_class(*args, **kwargs)
         fields = (file_field, forms.BooleanField(required=False))
         kwargs['required'] = file_field.required
         kwargs['widget'] = self.widget(file_widget=file_field.widget,

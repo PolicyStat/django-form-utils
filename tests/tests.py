@@ -197,7 +197,7 @@ class BetterFormTests(TestCase):
                                 'classes': '',
                                 }),
                     (['reference'],
-                    {
+                     {
                                 'name': 'Optional',
                                 'legend': 'Optional',
                                 'description': '',
@@ -214,7 +214,7 @@ class BetterFormTests(TestCase):
                                 'classes': '',
                                 }),
                     (['reference'],
-                    {
+                     {
                                 'name': 'Optional',
                                 'legend': 'Optional',
                                 'description': '',
@@ -231,7 +231,7 @@ class BetterFormTests(TestCase):
                                 'classes': '',
                                 }),
                     (['reference'],
-                    {
+                     {
                                 'name': 'Optional',
                                 'legend': 'Optional',
                                 'description': '',
@@ -258,14 +258,14 @@ class BetterFormTests(TestCase):
                                 'classes': 'main',
                                 }),
                     (['age'],
-                    {
+                     {
                                 'name': 'More',
                                 'legend': 'More',
                                 'description': 'Extra information',
                                 'classes': 'more collapse'
                                 }),
                     (['title'],
-                    {
+                     {
                                 'name': None,
                                 'legend': None,
                                 'description': '',
@@ -282,7 +282,7 @@ class BetterFormTests(TestCase):
                                 'classes': 'main',
                                 }),
                     (['age', 'speed', 'agility'],
-                    {
+                     {
                                 'name': 'Acrobatics',
                                 'legend': 'Acrobatics',
                                 'description': '',
@@ -299,14 +299,14 @@ class BetterFormTests(TestCase):
                                 'classes': 'main',
                                 }),
                     (['age'],
-                    {
+                     {
                                 'name': 'More',
                                 'legend': 'More',
                                 'description': 'Extra information',
                                 'classes': 'more collapse'
                                 }),
                     (['title'],
-                    {
+                     {
                                 'name': None,
                                 'legend': None,
                                 'description': '',
@@ -331,8 +331,7 @@ class BetterFormTests(TestCase):
             for i, fs in enumerate(form.fieldsets):
                 target_data = targets[i]
                 # verify fieldset contains correct fields
-                self.assertEqual([f.name for f in fs],
-                                  target_data[0])
+                self.assertEqual([f.name for f in fs], target_data[0])
                 # verify fieldset has correct attributes
                 for attr, val in target_data[1].items():
                     self.assertEqual(getattr(fs, attr), val)
@@ -345,8 +344,10 @@ class BetterFormTests(TestCase):
         """
         form = ApplicationForm(data={'name': 'John Doe',
                                      'reference': 'Jane Doe'})
-        self.assertEqual([fs.errors for fs in form.fieldsets],
-                          [{'position': [u'This field is required.']}, {}])
+        self.assertEqual(
+            [fs.errors for fs in form.fieldsets],
+            [{'position': [u'This field is required.']}, {}]
+        )
 
     def test_iterate_fields(self):
         """
@@ -356,8 +357,10 @@ class BetterFormTests(TestCase):
 
         """
         form = ApplicationForm()
-        self.assertEqual([field.name for field in form],
-                          ['name', 'position', 'reference'])
+        self.assertEqual(
+            [field.name for field in form],
+            ['name', 'position', 'reference']
+        )
 
     def test_getitem_fields(self):
         """
@@ -388,7 +391,7 @@ class BetterFormTests(TestCase):
 
         """
         form = HoneypotForm()
-        honeypot = [field for field in form if field.name=='honeypot'][0]
+        honeypot = [field for field in form if field.name == 'honeypot'][0]
         attrs = honeypot.row_attrs
         self.assertTrue(u'style="display: none"' in attrs)
         self.assertTrue(u'class="required"' in attrs)
@@ -401,7 +404,7 @@ class BetterFormTests(TestCase):
         """
         form = HoneypotForm()
         fieldset = [fs for fs in form.fieldsets][0]
-        honeypot = [field for field in fieldset if field.name=='honeypot'][0]
+        honeypot = [field for field in fieldset if field.name == 'honeypot'][0]
         attrs = honeypot.row_attrs
         self.assertTrue(u'style="display: none"' in attrs)
         self.assertTrue(u'class="required"' in attrs)
@@ -427,6 +430,7 @@ class BetterFormTests(TestCase):
             class ErrorForm(BetterForm):
                 one = forms.CharField()
                 two = forms.CharField()
+
                 class Meta:
                     fieldsets = ((None, {'fields': ('one', 'two')}))
         # can't test the message here, but it would be TypeError otherwise
@@ -466,21 +470,40 @@ class BoringForm(forms.Form):
     boredom = forms.IntegerField()
     excitement = forms.IntegerField()
 
+
 class TemplatetagTests(TestCase):
-    boring_form_html = (
-        u'<fieldset class="fieldset_main">'
-        u'<ul>'
-        u'<li>'
-        u'<label for="id_boredom">Boredom%(suffix)s</label>'
-        u'<input type="%(type)s" name="boredom" id="id_boredom" />'
-        u'</li>'
-        u'<li>'
-        u'<label for="id_excitement">Excitement%(suffix)s</label>'
-        u'<input type="%(type)s" name="excitement" id="id_excitement" />'
-        u'</li>'
-        u'</ul>'
-        u'</fieldset>'
-        ) % {'type': number_field_type, 'suffix': label_suffix}
+    @property
+    def boring_form_html(self):
+        if django.VERSION < (1, 10, 0):
+            return (
+                u'<fieldset class="fieldset_main">'
+                u'<ul>'
+                u'<li>'
+                u'<label for="id_boredom">Boredom%(suffix)s</label>'
+                u'<input type="%(type)s" name="boredom" id="id_boredom" />'
+                u'</li>'
+                u'<li>'
+                u'<label for="id_excitement">Excitement%(suffix)s</label>'
+                u'<input type="%(type)s" name="excitement" id="id_excitement" />'  # noqa
+                u'</li>'
+                u'</ul>'
+                u'</fieldset>'
+                ) % {'type': number_field_type, 'suffix': label_suffix}
+        else:
+            return (
+                u'<fieldset class="fieldset_main">'
+                u'<ul>'
+                u'<li>'
+                u'<label for="id_boredom">Boredom%(suffix)s</label>'
+                u'<input type="%(type)s" name="boredom" id="id_boredom" required />'  # noqa
+                u'</li>'
+                u'<li>'
+                u'<label for="id_excitement">Excitement%(suffix)s</label>'
+                u'<input type="%(type)s" name="excitement" id="id_excitement" required />'  # noqa
+                u'</li>'
+                u'</ul>'
+                u'</fieldset>'
+                ) % {'type': number_field_type, 'suffix': label_suffix}
 
     def test_render_form(self):
         """
@@ -492,29 +515,56 @@ class TemplatetagTests(TestCase):
         html = tpl.render(template.Context({'form': form}))
         self.assertHTMLEqual(html, self.boring_form_html)
 
-    betterform_html = (
-        u'<fieldset class="">'
-        u'<ul>'
-        u'<li class="required">'
-        u'<label for="id_name">Name%(suffix)s</label>'
-        u'<input type="text" name="name" id="id_name" />'
-        u'</li>'
-        u'<li class="required">'
-        u'<label for="id_position">Position%(suffix)s</label>'
-        u'<input type="text" name="position" id="id_position" />'
-        u'</li>'
-        u'</ul>'
-        u'</fieldset>'
-        u'<fieldset class="optional">'
-        u'<legend>Optional</legend>'
-        u'<ul>'
-        u'<li class="optional">'
-        u'<label for="id_reference">Reference%(suffix)s</label>'
-        u'<input type="text" name="reference" id="id_reference" />'
-        u'</li>'
-        u'</ul>'
-        u'</fieldset>'
-        ) % {'suffix': label_suffix}
+    @property
+    def betterform_html(self):
+        if django.VERSION < (1, 10, 0):
+            return (
+                u'<fieldset class="">'
+                u'<ul>'
+                u'<li class="required">'
+                u'<label for="id_name">Name%(suffix)s</label>'
+                u'<input type="text" name="name" id="id_name" />'
+                u'</li>'
+                u'<li class="required">'
+                u'<label for="id_position">Position%(suffix)s</label>'
+                u'<input type="text" name="position" id="id_position" />'
+                u'</li>'
+                u'</ul>'
+                u'</fieldset>'
+                u'<fieldset class="optional">'
+                u'<legend>Optional</legend>'
+                u'<ul>'
+                u'<li class="optional">'
+                u'<label for="id_reference">Reference%(suffix)s</label>'
+                u'<input type="text" name="reference" id="id_reference" />'
+                u'</li>'
+                u'</ul>'
+                u'</fieldset>'
+                ) % {'suffix': label_suffix}
+        else:
+            return (
+                u'<fieldset class="">'
+                u'<ul>'
+                u'<li class="required">'
+                u'<label for="id_name">Name%(suffix)s</label>'
+                u'<input type="text" name="name" id="id_name" required />'
+                u'</li>'
+                u'<li class="required">'
+                u'<label for="id_position">Position%(suffix)s</label>'
+                u'<input type="text" name="position" id="id_position" required />'  # noqa
+                u'</li>'
+                u'</ul>'
+                u'</fieldset>'
+                u'<fieldset class="optional">'
+                u'<legend>Optional</legend>'
+                u'<ul>'
+                u'<li class="optional">'
+                u'<label for="id_reference">Reference%(suffix)s</label>'
+                u'<input type="text" name="reference" id="id_reference" />'
+                u'</li>'
+                u'</ul>'
+                u'</fieldset>'
+                ) % {'suffix': label_suffix}
 
     def test_render_betterform(self):
         """
@@ -534,7 +584,10 @@ class ImageWidgetTests(TestCase):
 
         """
         widget = ImageWidget()
-        html = widget.render('fieldname', ImageFieldFile(None, ImageField(), 'tiny.png'))
+        html = widget.render(
+            'fieldname',
+            ImageFieldFile(None, ImageField(), 'tiny.png')
+        )
         # test only this much of the html, because the remainder will
         # vary depending on whether we have sorl-thumbnail
         self.assertTrue('<img' in html)
@@ -546,7 +599,10 @@ class ImageWidgetTests(TestCase):
 
         """
         widget = ImageWidget()
-        html = widget.render('fieldname', FieldFile(None, FileField(), 'something.txt'))
+        html = widget.render(
+            'fieldname',
+            FieldFile(None, FileField(), 'something.txt')
+        )
         self.assertHTMLEqual(html, '<input type="file" name="fieldname" />')
 
     def test_custom_template(self):
@@ -556,7 +612,10 @@ class ImageWidgetTests(TestCase):
         """
         widget = ImageWidget(template='<div>%(image)s</div>'
                              '<div>%(input)s</div>')
-        html = widget.render('fieldname', ImageFieldFile(None, ImageField(), 'tiny.png'))
+        html = widget.render(
+            'fieldname',
+            ImageFieldFile(None, ImageField(), 'tiny.png')
+        )
         self.assertTrue(html.startswith('<div><img'))
 
 
@@ -576,34 +635,16 @@ class ClearableFileInputTests(TestCase):
             '<input type="checkbox" name="fieldname_1" />'
             )
 
-    def test_custom_file_widget(self):
-        """
-        ``ClearableFileInput`` respects its ``file_widget`` argument.
-
-        """
-        widget = ClearableFileInput(file_widget=ImageWidget())
-        html = widget.render('fieldname', ImageFieldFile(None, ImageField(), 'tiny.png'))
-        self.assertTrue('<img' in html)
-
-    def test_custom_file_widget_via_subclass(self):
-        """
-        Default ``file_widget`` class can also be customized by
-        subclassing.
-
-        """
-        class ClearableImageWidget(ClearableFileInput):
-            default_file_widget_class = ImageWidget
-        widget = ClearableImageWidget()
-        html = widget.render('fieldname', ImageFieldFile(None, ImageField(), 'tiny.png'))
-        self.assertTrue('<img' in html)
-
     def test_custom_template(self):
         """
         ``ClearableFileInput`` respects its ``template`` argument.
 
         """
         widget = ClearableFileInput(template='Clear: %(checkbox)s %(input)s')
-        html = widget.render('fieldname', ImageFieldFile(None, ImageField(), 'tiny.png'))
+        html = widget.render(
+            'fieldname',
+            ImageFieldFile(None, ImageField(), 'tiny.png')
+        )
         self.assertHTMLEqual(
             html,
             'Clear: '
@@ -635,11 +676,20 @@ class ClearableFileFieldTests(TestCase):
         class TestForm(forms.Form):
             f = ClearableFileField()
         form = TestForm(files={'f_0': self.upload})
+        if django.VERSION < (1, 10, 0):
+            expected = (
+                '<input type="file" name="f_0" id="id_f_0" /> Clear: '
+                '<input type="checkbox" name="f_1" id="id_f_1" />'
+            )
+        else:
+            expected = (
+                '<input type="file" name="f_0" id="id_f_0" required /> Clear: '
+                '<input type="checkbox" name="f_1" id="id_f_1" required />'
+            )
         self.assertHTMLEqual(
             six.text_type(form['f']),
-            u'<input type="file" name="f_0" id="id_f_0" />'
-            u' Clear: <input type="checkbox" name="f_1" id="id_f_1" />'
-            )
+            expected,
+        )
 
     def test_not_cleared(self):
         """
@@ -680,37 +730,6 @@ class ClearableFileFieldTests(TestCase):
         result = field.clean([self.upload, '1'])
         self.assertEqual(result, self.upload)
 
-    def test_custom_file_field(self):
-        """
-        We can pass in our own ``file_field`` rather than using the
-        default ``forms.FileField``.
-
-        """
-        file_field = forms.ImageField()
-        field = ClearableFileField(file_field=file_field)
-        self.assertTrue(field.fields[0] is file_field)
-
-    def test_custom_file_field_required(self):
-        """
-        If we pass in our own ``file_field`` its required value is
-        used for the composite field.
-
-        """
-        file_field = forms.ImageField(required=False)
-        field = ClearableFileField(file_field=file_field)
-        self.assertFalse(field.required)
-
-    def test_custom_file_field_widget_used(self):
-        """
-        If we pass in our own ``file_field`` its widget is used for
-        the internal file field.
-
-        """
-        widget = ImageWidget()
-        file_field = forms.ImageField(widget=widget)
-        field = ClearableFileField(file_field=file_field)
-        self.assertTrue(field.fields[0].widget is widget)
-
     def test_clearable_image_field(self):
         """
         We can override the default ``file_field`` class by
@@ -739,12 +758,11 @@ class ClearableFileFieldTests(TestCase):
         """
         class ClearableImageWidget(ClearableFileInput):
             default_file_widget_class = ImageWidget
+
         class ClearableImageWidgetField(ClearableFileField):
             widget = ClearableImageWidget
         field = ClearableImageWidgetField()
         self.assertTrue(isinstance(field.widget, ClearableImageWidget))
-
-
 
 
 class FieldFilterTests(TestCase):
@@ -754,7 +772,6 @@ class FieldFilterTests(TestCase):
         """The module under test."""
         from form_utils.templatetags import form_utils
         return form_utils
-
 
     @property
     def form(self):
@@ -774,7 +791,6 @@ class FieldFilterTests(TestCase):
 
         return PersonForm
 
-
     @patch("form_utils.templatetags.form_utils.render_to_string")
     def test_label(self, render_to_string):
         """``label`` filter renders field label from template."""
@@ -793,7 +809,6 @@ class FieldFilterTests(TestCase):
                 }
             )
 
-
     @patch("form_utils.templatetags.form_utils.render_to_string")
     def test_label_override(self, render_to_string):
         """label filter allows overriding the label text."""
@@ -810,24 +825,26 @@ class FieldFilterTests(TestCase):
                 }
             )
 
-
     def test_value_text(self):
         """``value_text`` filter returns value of field."""
         self.assertEqual(
-            self.form_utils.value_text(self.form({"name": "boo"})["name"]), "boo")
-
+            self.form_utils.value_text(self.form({"name": "boo"})["name"]),
+            "boo"
+        )
 
     def test_value_text_unbound(self):
         """``value_text`` filter returns default value of unbound field."""
-        self.assertEqual(self.form_utils.value_text(self.form()["name"]), "none")
-
+        self.assertEqual(
+            self.form_utils.value_text(self.form()["name"]),
+            "none"
+        )
 
     def test_value_text_choices(self):
-        """``value_text`` filter returns human-readable value of choicefield."""
+        """``value_text`` filter returns human-readable value of choicefield."""  # noqa
         self.assertEqual(
-            self.form_utils.value_text(
-                self.form({"level": "a"})["level"]), "Advanced")
-
+            self.form_utils.value_text(self.form({"level": "a"})["level"]),
+            "Advanced"
+        )
 
     def test_selected_values_choices(self):
         """``selected_values`` filter returns values of multiple select."""
@@ -836,18 +853,15 @@ class FieldFilterTests(TestCase):
         self.assertEqual(
             self.form_utils.selected_values(f["level"]),
             ["Advanced", "Beginner"],
-            )
-
+        )
 
     def test_optional_false(self):
         """A required field should not be marked optional."""
         self.assertFalse(self.form_utils.optional(self.form()["name"]))
 
-
     def test_optional_true(self):
         """A non-required field should be marked optional."""
         self.assertTrue(self.form_utils.optional(self.form()["level"]))
-
 
     def test_detect_checkbox(self):
         """``is_checkbox`` detects checkboxes."""
@@ -855,13 +869,11 @@ class FieldFilterTests(TestCase):
 
         self.assertTrue(self.form_utils.is_checkbox(f["awesome"]))
 
-
     def test_detect_non_checkbox(self):
         """``is_checkbox`` detects that select fields are not checkboxes."""
         f = self.form()
 
         self.assertFalse(self.form_utils.is_checkbox(f["level"]))
-
 
     def test_is_multiple(self):
         """`is_multiple` detects a MultipleChoiceField."""
@@ -869,13 +881,11 @@ class FieldFilterTests(TestCase):
 
         self.assertTrue(self.form_utils.is_multiple(f["colors"]))
 
-
     def test_is_not_multiple(self):
         """`is_multiple` detects a non-multiple widget."""
         f = self.form()
 
         self.assertFalse(self.form_utils.is_multiple(f["level"]))
-
 
     def test_is_select(self):
         """`is_select` detects a ChoiceField."""
@@ -883,20 +893,17 @@ class FieldFilterTests(TestCase):
 
         self.assertTrue(self.form_utils.is_select(f["level"]))
 
-
     def test_is_not_select(self):
         """`is_select` detects a non-ChoiceField."""
         f = self.form()
 
         self.assertFalse(self.form_utils.is_select(f["name"]))
 
-
     def test_is_radio(self):
         """`is_radio` detects a radio select widget."""
         f = self.form()
 
         self.assertTrue(self.form_utils.is_radio(f["gender"]))
-
 
     def test_is_not_radio(self):
         """`is_radio` detects a non-radio select."""
