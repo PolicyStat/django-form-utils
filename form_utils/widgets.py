@@ -72,11 +72,9 @@ class ClearableFileInputRenderer(object):
 
         input_context = dict(widget={})
         input_context['widget'].update(context['widget']['subwidgets'][0])
-        # input_context['widget']['value'] = context['widget']['value']
 
         checkbox_context = dict(widget={})
         checkbox_context['widget'].update(context['widget']['subwidgets'][1])
-        # checkbox_context['widget']['value'] = context['widget']['value']
 
         input_html = render_to_string(
             context['widget']['subwidgets'][0]['template_name'],
@@ -133,8 +131,9 @@ class ClearableFileInput(forms.MultiWidget):
         self.renderer.set_value(value)
 
         render_kwargs = dict()
-        if django.VERSION > (1, 10, 0):
-            render_kwargs['renderer'] = self.renderer
+        render_kwargs['renderer'] = self.renderer
+        if django.VERSION < (1, 11, 0):
+            del render_kwargs['renderer']
         return super(ClearableFileInput, self).render(
             name,
             value,

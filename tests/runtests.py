@@ -23,7 +23,7 @@ if not settings.configured:
             {
                 'BACKEND': 'django.template.backends.django.DjangoTemplates',
                 'DIRS': [
-                    '{base}/forms/templates/'.format(base=__path__[0]),
+                    os.path.join(__path__[0], 'forms', 'templates'),
                 ],
                 'APP_DIRS': True,
             }
