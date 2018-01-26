@@ -10,6 +10,7 @@ from __future__ import unicode_literals
 
 import posixpath
 
+import django
 from django import forms
 from django.conf import settings
 from django.template.loader import render_to_string
@@ -68,29 +69,26 @@ class ClearableFileInputRenderer(object):
         self.input_value = value
 
     def render(self, template_name, context, request=None):
-        print('')
-        print('>' * 52)
 
-        print(context)
+        input_context = dict(widget={})
+        input_context['widget'].update(context['widget']['subwidgets'][0])
+        # input_context['widget']['value'] = context['widget']['value']
+
+        checkbox_context = dict(widget={})
+        checkbox_context['widget'].update(context['widget']['subwidgets'][1])
+        # checkbox_context['widget']['value'] = context['widget']['value']
 
         input_html = render_to_string(
             context['widget']['subwidgets'][0]['template_name'],
-            context,
+            input_context,
             request,
         )
-
-        print(input_html)
 
         checkbox_html = render_to_string(
             context['widget']['subwidgets'][1]['template_name'],
-            context,
+            checkbox_context,
             request,
         )
-
-        print(checkbox_html)
-
-        print('>' * 52)
-        print('')
 
         return self.get_clearable_file_input(
             [
@@ -120,7 +118,7 @@ class ClearableFileInput(forms.MultiWidget):
 
         file_widget = file_widget or self.default_file_widget_class()
 
-        self.renderer = ClearableFileInputRenderer(template)
+        self.renderer = ClearableFileInputRenderer(self.template)
 
         super(ClearableFileInput, self).__init__(
             widgets=[file_widget, forms.CheckboxInput()],
@@ -134,20 +132,15 @@ class ClearableFileInput(forms.MultiWidget):
 
         self.renderer.set_value(value)
 
-        try:
-            return super(ClearableFileInput, self).render(
-                name,
-                value,
-                attrs,
-                renderer=self.renderer,
-            )
-        except TypeError:
-            return super(ClearableFileInput, self).render(
-                name,
-                value,
-                attrs,
-                # Django 1.8 doesn't take a renderer
-            )
+        render_kwargs = dict()
+        if django.VERSION > (1, 10, 0):
+            render_kwargs['renderer'] = self.renderer
+        return super(ClearableFileInput, self).render(
+            name,
+            value,
+            attrs,
+            **render_kwargs
+        )
 
     def decompress(self, value):
         # The clear checkbox is never initially checked
