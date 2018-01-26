@@ -635,33 +635,6 @@ class ClearableFileInputTests(TestCase):
             '<input type="checkbox" name="fieldname_1" />'
             )
 
-    def test_custom_file_widget(self):
-        """
-        ``ClearableFileInput`` respects its ``file_widget`` argument.
-
-        """
-        widget = ClearableFileInput(file_widget=ImageWidget())
-        html = widget.render(
-            'fieldname',
-            ImageFieldFile(None, ImageField(), 'tiny.png')
-        )
-        self.assertTrue('<img' in html)
-
-    def test_custom_file_widget_via_subclass(self):
-        """
-        Default ``file_widget`` class can also be customized by
-        subclassing.
-
-        """
-        class ClearableImageWidget(ClearableFileInput):
-            default_file_widget_class = ImageWidget
-        widget = ClearableImageWidget()
-        html = widget.render(
-            'fieldname',
-            ImageFieldFile(None, ImageField(), 'tiny.png')
-        )
-        self.assertTrue('<img' in html)
-
     def test_custom_template(self):
         """
         ``ClearableFileInput`` respects its ``template`` argument.
